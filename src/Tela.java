@@ -16,11 +16,11 @@ import javax.swing.Timer;
 
 public class Tela extends JPanel implements ActionListener {
 
-    private final int bordalargura = 500;
-    private final int bordaAltura = 500;
-    private final int todosPontos = 1000; // TODOS OS PONTOS POSSÍVEIS NO VISOR
+    private final int bordalargura = 300;
+    private final int bordaAltura = 300;
+    private final int todosPontos = 900; // TODOS OS PONTOS POSSÍVEIS NO VISOR
     private final int posicaoAleatoria = 29;
-    private final int velocidadeJogo = 104;
+    private final int velocidadeJogo = 84;
     private final int tamanhoPonto = 10; // Aqui estamos definindo que cada ponto do corpo da cobra e da mação possui o tamanho de 10 pixels
     private final int tamanhoMaca = 10; // Aqui estamos definindo que cada ponto do corpo da cobra e da mação possui o tamanho de 10 pixels
 
@@ -30,6 +30,8 @@ public class Tela extends JPanel implements ActionListener {
     private int corpo; // Cada ponto reresenta uma parte do corpo da cobra
     private int macaX;
     private int macaY;
+    private int pedraX;
+    private int pedraY;
 
     private boolean direcaoEsquerda = false;
     private boolean direcaDireita = true;
@@ -41,6 +43,7 @@ public class Tela extends JPanel implements ActionListener {
     private Image ponto;
     private Image maca;  //Maçã
     private Image cabeca;
+    private Image pedra;
 
     
     public Tela() {
@@ -69,6 +72,9 @@ public class Tela extends JPanel implements ActionListener {
 
         ImageIcon iconeCabeca = new ImageIcon("cabeca.png");
         cabeca = iconeCabeca.getImage();
+
+        ImageIcon iconePedra = new ImageIcon("pedra.png");
+        pedra = iconePedra.getImage();
     }
 
     private void iniciarJogo() {
@@ -81,6 +87,7 @@ public class Tela extends JPanel implements ActionListener {
         }
         
         localizacaoMaca();
+        
 
         tempo = new Timer(velocidadeJogo, this);
         tempo.start();
@@ -94,11 +101,19 @@ public class Tela extends JPanel implements ActionListener {
     }
     
     private void doDrawing(Graphics g) {
-        
+            
+
         if (noJogo) {
-
+            
             g.drawImage(maca, macaX, macaY, this);
-
+            
+            g.drawImage(pedra, 50, 80, this);
+            g.drawImage(pedra, 70, 90, this);
+            g.drawImage(pedra, 90, 40, this);
+            g.drawImage(pedra, 150, 270, this);
+            g.drawImage(pedra, 250, 150, this);
+                       
+           
             for (int z = 0; z < corpo; z++) {
                 if (z == 0) {
                     g.drawImage(cabeca, coordX[z], coordY[z], this);
@@ -132,6 +147,7 @@ public class Tela extends JPanel implements ActionListener {
 
             corpo++;
             localizacaoMaca();
+            
         }
     }
 
@@ -193,10 +209,10 @@ public class Tela extends JPanel implements ActionListener {
 
         int r = (int) (Math.random() * posicaoAleatoria);
         macaX = ((r*tamanhoMaca));
-
         r = (int) (Math.random() * posicaoAleatoria);
         macaY = ((r*tamanhoMaca));
     }
+
 
     @Override
     public void actionPerformed(ActionEvent e) {
