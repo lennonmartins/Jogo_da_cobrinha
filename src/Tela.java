@@ -39,6 +39,7 @@ public class Tela extends JPanel implements ActionListener {
     private int vidas;
     private int contador;
     private int contadorMaca;
+    private int cronometro = 120000;
 
     private boolean direcaoEsquerda = false;
     private boolean direcaoDireita = true;
@@ -179,12 +180,14 @@ public class Tela extends JPanel implements ActionListener {
 
     private void mostraMaca(Graphics g) {
 
+        
         String msg = "Maçãs: " + contadorMaca;
         Font small = new Font("Helvetica", Font.BOLD, 14);
-
+        
         g.setColor(Color.white);
         g.setFont(small);
         g.drawString(msg, 100, 385);
+        g.drawString("Tempo: " + ((cronometro/1000))/60 + ":"+ ((cronometro/1000)%60), 300,385);
     }
 
     private void fimDoJogo(Graphics g) {
@@ -242,6 +245,11 @@ public class Tela extends JPanel implements ActionListener {
 
         if (direcaoBaixo) {
             coordY[0] += tamanhoPonto;
+        }
+        if (cronometro >=0 ) {
+            cronometro -=100;
+        }else {
+            noJogo=false;
         }
     }
 
