@@ -9,6 +9,13 @@
             "name": "Launch Snake",
             "request": "launch",
             "mainClass": "Snake",
+            "projectName": "Jogo_da_cobrinha_a72f1772"
+        },
+        {
+            "type": "java",
+            "name": "Launch Snake",
+            "request": "launch",
+            "mainClass": "Snake",
             "projectName": "Jogo Cobrinha_8631f38e"
         },
         {

@@ -16,13 +16,15 @@ import javax.swing.Timer;
 
 public class Tela extends JPanel implements ActionListener {
 
-    private final int bordalargura = 300;
-    private final int bordaAltura = 300;
-    private final int todosPontos = 900; // TODOS OS PONTOS POSSÍVEIS NO VISOR
+    private final int bordalargura = 400;
+    private final int bordaAltura = 400;
+    private final int todosPontos = 1200; // TODOS OS PONTOS POSSÍVEIS NO VISOR
     private final int posicaoAleatoria = 29;
     private final int velocidadeJogo = 84;
-    private final int tamanhoPonto = 10; // Aqui estamos definindo que cada ponto do corpo da cobra e da mação possui o tamanho de 10 pixels
-    private final int tamanhoMaca = 10; // Aqui estamos definindo que cada ponto do corpo da cobra e da mação possui o tamanho de 10 pixels
+    private final int tamanhoPonto = 10; // Aqui estamos definindo que cada ponto do corpo da cobra e da mação possui o
+                                         // tamanho de 10 pixels
+    private final int tamanhoMaca = 10; // Aqui estamos definindo que cada ponto do corpo da cobra e da mação possui o
+                                        // tamanho de 10 pixels
 
     private final int coordX[] = new int[todosPontos];
     private final int coordY[] = new int[todosPontos];
@@ -32,6 +34,10 @@ public class Tela extends JPanel implements ActionListener {
     private int macaY;
     private int pedraX;
     private int pedraY;
+    private int vidas;
+    private int contador;
+    private int contadorMaca;
+    
 
     private boolean direcaoEsquerda = false;
     private boolean direcaDireita = true;
@@ -41,27 +47,26 @@ public class Tela extends JPanel implements ActionListener {
 
     private Timer tempo;
     private Image ponto;
-    private Image maca;  //Maçã
+    private Image maca; // Maçã
     private Image cabeca;
     private Image pedra;
 
-    
     public Tela() {
-        
+
         apresentarTela();
     }
-    
+
     private void apresentarTela() {
-        
+
         addKeyListener(new TAdapter());
         setBackground(Color.black);
         setFocusable(true);
-        
+
         setPreferredSize(new Dimension(bordalargura, bordaAltura));
         carregarImagens();
         iniciarJogo();
     }
-    
+
     private void carregarImagens() {
 
         ImageIcon iconePonto = new ImageIcon("ponto.png");
@@ -80,14 +85,15 @@ public class Tela extends JPanel implements ActionListener {
     private void iniciarJogo() {
 
         corpo = 5; // Definindo o tamanho da cobra no início do jogo
-
-        for (int z = 0; z < corpo; z++) { //Definindo a posição inicial da cobra;
-            coordX[z] = 50 - z * 10;
+        vidas = 5; // Cobra começa com 5 vidas.
+        contador = 0;
+        contadorMaca = 0;
+        for (int z = 0; z < corpo; z++) { // Definindo a posição inicial da cobra;
+            coordX[z] = 50 - (z * 10);
             coordY[z] = 50;
         }
-        
+
         localizacaoMaca();
-        
 
         tempo = new Timer(velocidadeJogo, this);
         tempo.start();
@@ -99,21 +105,26 @@ public class Tela extends JPanel implements ActionListener {
 
         doDrawing(g);
     }
-    
-    private void doDrawing(Graphics g) {
-            
 
-        if (noJogo) {
-            
+    private void doDrawing(Graphics g) {
+
+        if (noJogo && contadorMaca != 15) {
+
             g.drawImage(maca, macaX, macaY, this);
-            
-            g.drawImage(pedra, 50, 80, this);
+
+            pedraX = (int) (Math.random() * posicaoAleatoria);
+            pedraY = (int) (Math.random() * posicaoAleatoria);
+            g.drawImage(pedra, pedraX, pedraY, this);
             g.drawImage(pedra, 70, 90, this);
             g.drawImage(pedra, 90, 40, this);
             g.drawImage(pedra, 150, 270, this);
             g.drawImage(pedra, 250, 150, this);
-                       
-           
+            g.drawImage(pedra, 75, pedraY * posicaoAleatoria, this);
+            g.drawImage(pedra, 260, 90, this);
+            g.drawImage(pedra, 390, 40, this);
+            g.drawImage(pedra, 180, 270, this);
+            g.drawImage(pedra, 300, 150, this);
+
             for (int z = 0; z < corpo; z++) {
                 if (z == 0) {
                     g.drawImage(cabeca, coordX[z], coordY[z], this);
@@ -121,17 +132,59 @@ public class Tela extends JPanel implements ActionListener {
                     g.drawImage(ponto, coordX[z], coordY[z], this);
                 }
             }
+            
+            if (contador==3) {
+                vidas++;
+                contador = 0;
+            }
+            
+            ganhaVidas(g);
+            mostraMaca(g);
 
             Toolkit.getDefaultToolkit().sync();
 
-        } else {
+        } else if(contadorMaca == 15){
+
+            ganhaJogo(g);
+
+        }else {
 
             fimDoJogo(g);
-        }        
+        }
+    }
+
+    private void ganhaJogo(Graphics g) {
+
+        String msg = "Parabéns! Você venceu!";
+        Font small = new Font("Helvetica", Font.BOLD, 22);
+        FontMetrics metr = getFontMetrics(small);
+
+        g.setColor(Color.white);
+        g.setFont(small);
+        g.drawString(msg, (bordalargura - metr.stringWidth(msg)) / 2, bordaAltura / 2);
+    }
+
+    private void ganhaVidas(Graphics g) {
+        
+        String msg = "Vidas: " + vidas;
+        Font small = new Font("Helvetica", Font.BOLD, 14);
+    
+        g.setColor(Color.white);
+        g.setFont(small);
+        g.drawString(msg, 15, 385);
+    }
+    private void mostraMaca(Graphics g) {
+        
+        String msg = "Maçãs: " + contadorMaca;
+        Font small = new Font("Helvetica", Font.BOLD, 14);
+    
+        g.setColor(Color.white);
+        g.setFont(small);
+        g.drawString(msg, 100, 385);
     }
 
     private void fimDoJogo(Graphics g) {
-        
+
         String msg = "Você bateu!";
         Font small = new Font("Helvetica", Font.BOLD, 14);
         FontMetrics metr = getFontMetrics(small);
@@ -146,6 +199,8 @@ public class Tela extends JPanel implements ActionListener {
         if ((coordX[0] == macaX) && (coordY[0] == macaY)) {
 
             corpo++;
+            contador++;            
+            contadorMaca++;            
             localizacaoMaca();
             
         }
@@ -184,22 +239,25 @@ public class Tela extends JPanel implements ActionListener {
             }
         }
 
+        
+
         if (coordY[0] >= bordaAltura) {
-            noJogo = false;
+            coordY[0] = 0;
+
         }
 
         if (coordY[0] < 0) {
-            noJogo = false;
+            coordY[0] = bordaAltura;
         }
 
         if (coordX[0] >= bordalargura) {
-            noJogo = false;
+            coordX[0] = 0;
         }
 
         if (coordX[0] < 0) {
-            noJogo = false;
+            coordX[0] = bordalargura;
         }
-        
+
         if (!noJogo) {
             tempo.stop();
         }
@@ -208,11 +266,10 @@ public class Tela extends JPanel implements ActionListener {
     private void localizacaoMaca() {
 
         int r = (int) (Math.random() * posicaoAleatoria);
-        macaX = ((r*tamanhoMaca));
+        macaX = ((r * tamanhoMaca));
         r = (int) (Math.random() * posicaoAleatoria);
-        macaY = ((r*tamanhoMaca));
+        macaY = ((r * tamanhoMaca));
     }
-
 
     @Override
     public void actionPerformed(ActionEvent e) {
