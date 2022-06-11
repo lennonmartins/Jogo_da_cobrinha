@@ -19,7 +19,7 @@ public class Tela extends JPanel implements ActionListener {
     private final int bordalargura = 400;
     private final int bordaAltura = 400;
     private final int todosPontos = 1200; // TODOS OS PONTOS POSSÍVEIS NO VISOR
-    private final int posicaoAleatoria = 29;
+    private final int posicaoAleatoria = 39;
     private final int velocidadeJogo = 84;
     private final int tamanhoPonto = 10; // Aqui estamos definindo que cada ponto do corpo da cobra e da mação possui o
                                          // tamanho de 10 pixels
@@ -28,6 +28,8 @@ public class Tela extends JPanel implements ActionListener {
 
     private final int coordX[] = new int[todosPontos];
     private final int coordY[] = new int[todosPontos];
+    private final int pX[] = new int[15];
+    private final int pY[] = new int[15];
 
     private int corpo; // Cada ponto reresenta uma parte do corpo da cobra
     private int macaX;
@@ -37,10 +39,9 @@ public class Tela extends JPanel implements ActionListener {
     private int vidas;
     private int contador;
     private int contadorMaca;
-    
 
     private boolean direcaoEsquerda = false;
-    private boolean direcaDireita = true;
+    private boolean direcaoDireita = true;
     private boolean direcaoCima = false;
     private boolean direcaoBaixo = false;
     private boolean noJogo = true;
@@ -65,6 +66,7 @@ public class Tela extends JPanel implements ActionListener {
         setPreferredSize(new Dimension(bordalargura, bordaAltura));
         carregarImagens();
         iniciarJogo();
+        posicaoObstaculos();
     }
 
     private void carregarImagens() {
@@ -88,11 +90,8 @@ public class Tela extends JPanel implements ActionListener {
         vidas = 5; // Cobra começa com 5 vidas.
         contador = 0;
         contadorMaca = 0;
-        for (int z = 0; z < corpo; z++) { // Definindo a posição inicial da cobra;
-            coordX[z] = 50 - (z * 10);
-            coordY[z] = 50;
-        }
-
+        posicaoInicial();
+        posicaoObstaculos();
         localizacaoMaca();
 
         tempo = new Timer(velocidadeJogo, this);
@@ -106,24 +105,28 @@ public class Tela extends JPanel implements ActionListener {
         doDrawing(g);
     }
 
+    private void posicaoInicial() {
+        for (int z = 0; z < corpo; z++) { // Definindo a posição inicial da cobra;
+            coordX[z] = 50 - (z * 10);
+            coordY[z] = 50;
+        }
+        if (direcaoEsquerda) {
+            direcaoEsquerda = false;
+            direcaoDireita = true;
+        }
+        posicaoObstaculos();
+    }
+
     private void doDrawing(Graphics g) {
 
         if (noJogo && contadorMaca != 15) {
 
             g.drawImage(maca, macaX, macaY, this);
 
-            pedraX = (int) (Math.random() * posicaoAleatoria);
-            pedraY = (int) (Math.random() * posicaoAleatoria);
-            g.drawImage(pedra, pedraX, pedraY, this);
-            g.drawImage(pedra, 70, 90, this);
-            g.drawImage(pedra, 90, 40, this);
-            g.drawImage(pedra, 150, 270, this);
-            g.drawImage(pedra, 250, 150, this);
-            g.drawImage(pedra, 75, pedraY * posicaoAleatoria, this);
-            g.drawImage(pedra, 260, 90, this);
-            g.drawImage(pedra, 390, 40, this);
-            g.drawImage(pedra, 180, 270, this);
-            g.drawImage(pedra, 300, 150, this);
+            for (int i = 0; i < pX.length; i++) {
+                g.drawImage(pedra, pX[i], pY[i], this);
+
+            }
 
             for (int z = 0; z < corpo; z++) {
                 if (z == 0) {
@@ -132,22 +135,22 @@ public class Tela extends JPanel implements ActionListener {
                     g.drawImage(ponto, coordX[z], coordY[z], this);
                 }
             }
-            
-            if (contador==3) {
+
+            if (contador == 3) {
                 vidas++;
                 contador = 0;
             }
-            
+
             ganhaVidas(g);
             mostraMaca(g);
 
             Toolkit.getDefaultToolkit().sync();
 
-        } else if(contadorMaca == 15){
+        } else if (contadorMaca == 15) {
 
             ganhaJogo(g);
 
-        }else {
+        } else if (!noJogo || vidas == 0) {
 
             fimDoJogo(g);
         }
@@ -165,19 +168,20 @@ public class Tela extends JPanel implements ActionListener {
     }
 
     private void ganhaVidas(Graphics g) {
-        
+
         String msg = "Vidas: " + vidas;
         Font small = new Font("Helvetica", Font.BOLD, 14);
-    
+
         g.setColor(Color.white);
         g.setFont(small);
         g.drawString(msg, 15, 385);
     }
+
     private void mostraMaca(Graphics g) {
-        
+
         String msg = "Maçãs: " + contadorMaca;
         Font small = new Font("Helvetica", Font.BOLD, 14);
-    
+
         g.setColor(Color.white);
         g.setFont(small);
         g.drawString(msg, 100, 385);
@@ -185,7 +189,7 @@ public class Tela extends JPanel implements ActionListener {
 
     private void fimDoJogo(Graphics g) {
 
-        String msg = "Você bateu!";
+        String msg = "Suas tentativas acabaram!";
         Font small = new Font("Helvetica", Font.BOLD, 14);
         FontMetrics metr = getFontMetrics(small);
 
@@ -194,15 +198,26 @@ public class Tela extends JPanel implements ActionListener {
         g.drawString(msg, (bordalargura - metr.stringWidth(msg)) / 2, bordaAltura / 2);
     }
 
+    private void posicaoObstaculos() {
+        for (int i = 0; i < pX.length; i++) {
+            pedraX = ((int) (Math.random() *  posicaoAleatoria))*tamanhoPonto;
+            pX[i] = pedraX;
+        }
+        for (int i = 0; i < pY.length; i++) {
+            pedraY = ((int) (Math.random() * posicaoAleatoria))* tamanhoPonto;
+            pY[i] = pedraY;
+        }
+    }
+
     private void checarMaca() {
 
         if ((coordX[0] == macaX) && (coordY[0] == macaY)) {
 
             corpo++;
-            contador++;            
-            contadorMaca++;            
+            contador++;
+            contadorMaca++;
             localizacaoMaca();
-            
+
         }
     }
 
@@ -217,7 +232,7 @@ public class Tela extends JPanel implements ActionListener {
             coordX[0] -= tamanhoPonto;
         }
 
-        if (direcaDireita) {
+        if (direcaoDireita) {
             coordX[0] += tamanhoPonto;
         }
 
@@ -235,15 +250,19 @@ public class Tela extends JPanel implements ActionListener {
         for (int z = corpo; z > 0; z--) {
 
             if ((z > 4) && (coordX[0] == coordX[z]) && (coordY[0] == coordY[z])) {
+                vidas--;
+                posicaoInicial();
+
+            }
+            if (vidas == 0) {
                 noJogo = false;
             }
         }
 
-        
+      
 
         if (coordY[0] >= bordaAltura) {
             coordY[0] = 0;
-
         }
 
         if (coordY[0] < 0) {
@@ -269,7 +288,31 @@ public class Tela extends JPanel implements ActionListener {
         macaX = ((r * tamanhoMaca));
         r = (int) (Math.random() * posicaoAleatoria);
         macaY = ((r * tamanhoMaca));
+        checarMacaObstaculo();
     }
+
+    private void checarMacaObstaculo() {
+        for (int i = 0; i < 58; i++) {
+            if ((pX[0] == macaX) && (pX[0] == macaY)) {
+                localizacaoMaca();
+            }
+        }
+    }
+
+    private void checarBatida(){
+        for (int i = 0; i < pX.length; i++) {
+            if ((coordY[0] == pY[i]) && (coordX[0] == pX[i])) {
+                vidas--;
+                posicaoInicial();
+
+            }
+            if (vidas == 0) {
+                noJogo = false;
+            };
+            }
+        }
+
+    
 
     @Override
     public void actionPerformed(ActionEvent e) {
@@ -279,6 +322,9 @@ public class Tela extends JPanel implements ActionListener {
             checarMaca();
             checarColisao();
             movimentar();
+            checarMacaObstaculo();
+            checarBatida();
+
         }
 
         repaint();
@@ -291,27 +337,27 @@ public class Tela extends JPanel implements ActionListener {
 
             int key = e.getKeyCode();
 
-            if ((key == KeyEvent.VK_LEFT) && (!direcaDireita)) {
+            if ((key == KeyEvent.VK_LEFT) && (!direcaoDireita)) {
                 direcaoEsquerda = true;
                 direcaoCima = false;
                 direcaoBaixo = false;
             }
 
             if ((key == KeyEvent.VK_RIGHT) && (!direcaoEsquerda)) {
-                direcaDireita = true;
+                direcaoDireita = true;
                 direcaoCima = false;
                 direcaoBaixo = false;
             }
 
             if ((key == KeyEvent.VK_UP) && (!direcaoBaixo)) {
                 direcaoCima = true;
-                direcaDireita = false;
+                direcaoDireita = false;
                 direcaoEsquerda = false;
             }
 
             if ((key == KeyEvent.VK_DOWN) && (!direcaoCima)) {
                 direcaoBaixo = true;
-                direcaDireita = false;
+                direcaoDireita = false;
                 direcaoEsquerda = false;
             }
         }
